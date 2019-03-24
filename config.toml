@@ -1,0 +1,16 @@
+baseURL = "https://www.codedbearder.com/"
+languageCode = "en-us"
+title = "codedbearder"
+copyright = "&copy; codedbearder"
+theme = "hugo_theme_pickles"
+
+[params]
+  custom_css = ["/css/custom.css"]
+  paginate = 5
+  github = "arnarg"
+  linkedin = "arnari"
+  # Disable Disqus
+  disqus = false
+  # Disable Google analytics
+  ga_api_key = false
+
