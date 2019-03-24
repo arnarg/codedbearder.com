@@ -104,7 +104,7 @@ But in all seriousness when it started reporting the correct amount of RAM I was
 
 Now we have a functioning U-Boot image and can move on to the next step, Linux!
 
-I made a Makefile that builds a complete bootloader image with a simple `make` command here (**TODO**).
+I made a Makefile that builds a complete bootloader image with a simple `make` command [here][14].
 
 # Linux
 
@@ -143,7 +143,7 @@ Now you can enjoy the world of tomorrow with Arch Linux ARM! Except, there is a 
 
 ### More U-Boot stuff!?
 
-So on properly supported hardware U-Boot can load the MAC address from NAND flash or something fancy like that. But that's not how we roll around here!
+So, on properly supported hardware U-Boot can load the MAC address from NAND flash or something fancy like that. But that's not how we roll around here!
 
 The reason this is a problem is that if U-Boot can't load the MAC address from hardware it will just say "fine!" and make up its own, on every single boot. If you don't reboot it very often or use a static IP address this might not be a problem but on every boot it will get a new DHCP lease. U-Boot no longer supports hardcoding it in the config, as MAC addresses are suppose to be globally unique, so lets work around that.
 
@@ -155,7 +155,7 @@ So running from the sd card is cute and everything, but we have a 16 GiB eMMC fl
 
 To get it running off the eMMC flash you could simply repeat the steps above, but that takes time and who wants that? Instead I ~~wasted~~ spent time on creating a script that does all the steps for me and outputs an image that we can simply burn to the sd card and then the eMMC flash.
 
-That script can be found here (**TODO**). The final image also includes the bootloader, pre-compiled by me.
+That script can be found [here][15]. The final image also includes the bootloader.
 
 ### Recap
 
@@ -170,7 +170,7 @@ If you don't care about the process it took me to get here and want step by step
 
 # Final words
 
-That concludes our journey through thick and thin of getting mainline Linux running on the TX3 Mini. I haven't played at all with getting WIFI working, it has an `SSV6051` chip which does not have a driver in mainline Linux and a quick google search doesn't  give me much. Another thing is that the board has a 7-segment display where it can show the time or whatever you want (as long as it's not more than 4 numbers) and some icons, image search "TX3 Mini" and you'll see what I mean. This is controlled by an FD628 controller which does give me some results when googling for a driver ([linux_openvfd][16]) but I have not tried that one either.
+That concludes our journey through thick and thin of getting mainline Linux running on the TX3 Mini. I haven't played at all with getting WIFI working, it has an `SSV6051` chip which does not have a driver in mainline Linux and a quick google search doesn't  give me much. Another thing is that the board has a 7-segment display where it can show the time or whatever you want (as long as it's not more than 4 numbers) and some icons, image search "TX3 Mini" and you'll see what I mean. This is controlled by an FD628 controller which does give me some results when googling for a driver ([linux_openvfd][16]) but I have not tried that one either. Finally, the HDMI should work, though I haven't tried it. There is a [driver for the GPU][17] in Arch Linux ARM's repo.
 
 Now I can proudly plug my new ARM SBC into my network and use it as a server (or something). Lets throw it in the closet where no one can see it, making my point about aesthetics moot. But hey! It was fun figuring this out.
 
@@ -187,4 +187,7 @@ Now I can proudly plug my new ARM SBC into my network and use it as a server (or
 [11]: https://github.com/Stane1983/uboot-amlogic/blob/master/board/amlogic/configs/gxl_p281_v1.h#L259
 [12]: http://os.archlinuxarm.org/os/ArchLinuxARM-aarch64-latest.tar.gz
 [13]: https://archlinuxarm.org/platforms/armv8/generic
+[14]: https://github.com/arnarg/tx3-mini-uboot-build
+[15]: https://github.com/arnarg/tx3-mini-arch-linux-build
 [16]: https://github.com/arthur-liberman/linux_openvfd
+[17]: https://archlinuxarm.org/packages/aarch64/mali-utgard-meson-libgl-x11
