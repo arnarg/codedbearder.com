@@ -21,7 +21,7 @@ It has the following specs:
 * 10/100Mbit Ethernet
 * HDMI output up to 4K30P
 
-It's also cheap enough so that I wouldn't feel bad about bricking it in my attempt to get Mainline Linux running on it. I got the 2 GiB RAM and 16 GiB eMMC model. They usually go for about $30 on AliExpress or Ebay and that's including a case (duh!), power brick, HDMI cable and an IR remote (I'm using my to control my TV soundbar, how great!?).
+It's also cheap enough so that I wouldn't feel bad about bricking it in my attempt to get Mainline Linux running on it. I got the 2 GiB RAM and 16 GiB eMMC model. They usually go for about $30 on AliExpress or Ebay and that's including a case (duh!), power brick, HDMI cable and an IR remote (I'm using mine to control my TV soundbar, how great!?).
 
 There are images with LibreELEC and armbian out there on forums, but they require you to hold down a small button on the board to boot from the sd card and also runs the same kernel as the original Android OS, I believe. That simply won't do!
 
@@ -43,13 +43,13 @@ If you're interested you can read more about it [here][2], in a lot of detail!
 
 ### Missing defconfig
 
-So, the U-Boot source code was missing any defconfig resembling tx3-mini, f%#@! But after navigating the source for a while I found a board that sounds a lot like mine!
+So, the U-Boot source code was missing any defconfig resembling tx3-mini, f%#@! But after navigating the source for a while I found a board that sounded a lot like mine!
 
 ![The P212](/images/posts/mainline-linux-on-tx3-mini/p212.gif#img-center)
 
 The P212 has Amlogic S905X chipset which is a little different from the TX3 Mini's S905W. Now, it's been a few months on and off that I've worked on this so I don't remember exactly what steps I took to figure out that TX3 Mini is referenced from P281, but I did!
 
-I simply made a copy of all the files for p212 and renamed them to p281, most importantly to make `CONFIG_DEFAULT_DEVICE_TREE` equal `meson-gxl-s905w-p281` as its [dtb][3] is upstream and will therefor ship with distros. No need to compile a dtb manually! I have a [fork of U-Boot][4] that includes this on branches called `<version>-tx3-mini`.
+I simply made a copy of all the files for P212 and renamed them to P281, most importantly to make `CONFIG_DEFAULT_DEVICE_TREE` equal `meson-gxl-s905w-p281` as its [dtb][3] is upstream and will therefor ship with distros. No need to compile a dtb manually! I have a [fork of U-Boot][4] that includes this on branches called `<version>-tx3-mini`.
 
 With that done we can simply run:
 ```bash
