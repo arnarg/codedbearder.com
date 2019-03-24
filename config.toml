@@ -1,7 +1,7 @@
 baseURL = "https://www.codedbearder.com/"
 languageCode = "en-us"
 title = "codedbearder"
-copyright = "&copy; codedbearder"
+copyright = "&copy; Arnar Gauti Ingason"
 theme = "hugo_theme_pickles"
 
 [params]
@@ -13,4 +13,8 @@ theme = "hugo_theme_pickles"
   disqus = false
   # Disable Google analytics
   ga_api_key = false
-
+  favicon = "/images/favicon.png"
+  # Me
+  author = "Arnar Gauti Ingason"
+  contact = "mailto:codedbearder@arnarg.fastmail.com"
+  avatar = "/images/avatar.jpg"

@@ -4,8 +4,7 @@ date: 2019-03-23T21:23:25Z
 draft: true
 ---
 
-
-I've always found Raspberry Pi's cases and the Pi's connector locations to be rather aesthetically unpleasing, with the power connector coming out from the side and the ethernet from the back (or vice versa). Imagine my excitement when I was browsing the [github mirror of Linux][1] (as you do) and I ran into a dts for an Android TV box called Tanix TX3 Mini.
+I've always found Raspberry Pi cases and the Pi's connector locations to be rather aesthetically unpleasing, with the power connector coming out from the side and the ethernet from the back (or vice versa). Imagine my excitement when I was browsing the [github mirror of Linux][1] (as you do) and I ran into a dts for an Android TV box called Tanix TX3 Mini.
 
 <!--more-->
 
@@ -101,7 +100,62 @@ That's why the pre-compiled file will only works on 2 GiB models (I think). "Why
 
 But in all seriousness when it started reporting the correct amount of RAM I was too excited to go back and try it with 0.
 
+Now we have a functioning U-Boot image and can move on to the next step, Linux!
+
+I made a Makefile that builds a complete bootloader image with a simple `make` command here (**TODO**).
+
 # Linux
+
+Now I have some good news! Amlogic S905W has a pretty good mainline Linux support. We don't need to compile our own kernel or any of that nonsense.
+
+We do have to take one thing into consideration though when picking a distro, the kernel version has to be fairly recent. I've had good results with 4.19+ although I could not write onto the eMMC flash until Linux 5.0. For that reason I'm picking Arch Linux ARM in this post.
+
+### Arch Linux ARM
+
+As a user of Arch Linux this was a really natural fit for me. Arch Linux is a rolling release distro and has very up to date packages (like Linux 5.0!) Arch Linux ARM is an ARM version of it but it is not maintained by the same team as the original Arch Linux.
+
+Preparing an sd card is fairly straight forward:
+
+1. Download [ArchLinuxARM-aarch64-latest.tar.gz][12]
+2. Partition sd card (this can be a single root partition)
+3. Format that root partition as ext4 (make sure it has label `linux-root`)
+4. Mount that root partition
+5. Extract the Arch Linux ARM rootfs onto the partition
+6. Burn the bootloader to the sd card (like talked about in previous section)
+7. Finally write the following in `/boot/extlinux/extlinux.conf`
+
+```
+menu title ArchLinuxARM Boot Options.
+timeout 20
+
+label ArchLinuxARM
+        kernel /zImage
+        initrd /initramfs-linux.img
+        append rw root=LABEL=linux-root rootwait rootfstype=ext4 coherent_pool=1M ethaddr=${ethaddr} serial=${serial#}
+        fdtdir /dtbs/
+```
+
+After that fiasco is done you can pop that sd card into your board and watch as that glorious Arch Linux ARM boots. You can find more information like default passwords and services in the Arch Linux ARM [docs][13].
+
+Now you can enjoy the the future with Arch Linux ARM! Except, there is a problem.
+
+### More U-Boot stuff!?
+
+So on properly supported hardware U-Boot can load the MAC address from NAND flash or something fancy like that. But that's not how we roll around here!
+
+The reason this is a problem is that if U-Boot can't load the MAC address from hardware it will just say "fine!" and make up its own, on every single boot. If you don't reboot it very often or use a static IP address this might not be a problem but on every boot it will get a new DHCP lease. U-Boot no longer supports hardcoding it in the config, as MAC addresses are suppose to be globally unique, so lets work around that.
+
+We simply hardcode the MAC address in the `extlinux.conf` file created previously, look at the line where we pass parameters on to the Linux kernel (line starting with `append`). Variables enclosed in `${}` are loaded from the U-Boot environment, `${ethaddr}` being the MAC address of the first interface (followed by `${eth1addr}`, `${eth2addr}`, and so on...). So `ethaddr=${ethaddr}` becomes `ethaddr=12:34:56:78:9a:bc`, or you know, an actual MAC address (mine is printed on the bottom of the case).
+
+### Flashing it on the eMMC
+
+So running from the sd card is cute and everything, but we have a 16 GiB eMMC flash that we can use instead! And besides, sd cards are horrible for writing to a lot and will fail soon anyway unless you run your system from ram, but that's not the subject of this post!
+
+To get it running off the eMMC flash you could simply repeat the steps above, but that takes time and who wants that? Instead I ~~wasted~~ spent time on creating a script that does all the steps for me and outputs an image that we can simply burn to the sd card and then the eMMC flash.
+
+That script can be found here (**TODO**). The final image also includes the bootloader, pre-compiled by me.
+
+# Final words
 
 [1]: https://github.com/torvalds/linux
 [2]: https://github.com/ARM-software/arm-trusted-firmware/blob/master/docs/firmware-design.rst
@@ -114,3 +168,5 @@ But in all seriousness when it started reporting the correct amount of RAM I was
 [9]: https://github.com/Stane1983/aml-linux-usb-burn
 [10]: http://www.tanix-box.com/download-view/tanix-tx3-mini-firmware-full-image-20170829/
 [11]: https://github.com/Stane1983/uboot-amlogic/blob/master/board/amlogic/configs/gxl_p281_v1.h#L259
+[12]: http://os.archlinuxarm.org/os/ArchLinuxARM-aarch64-latest.tar.gz
+[13]: https://archlinuxarm.org/platforms/armv8/generic
