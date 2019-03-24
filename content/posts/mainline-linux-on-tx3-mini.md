@@ -161,7 +161,7 @@ That script can be found [here][15]. The final image also includes the bootloade
 
 If you don't care about the process it took me to get here and want step by step instructions:
 
-1. Clone repo
+1. Clone [tx3-mini-arch-linux-build][15]
 2. Run `./genimage.sh`
 3. [Wipe the eMMC](#wiping-the-emmc)
 4. Burn the image onto the sd card (`dd if=ArchLinuxARM-tx3-mini.img of=/dev/your_sd_card bs=1M`)
