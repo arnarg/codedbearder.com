@@ -36,9 +36,17 @@ After you've soldered a pin header to the serial port and connected to it you'll
 
 This proved to be more complicated than I imagined...
 
-### Boot Loader stages what!?
+### Bootloader stages what!?
 
 Ok look, I'm no expert but apparently aarch64 has secure boot and it doesn't just boot U-Boot directly but in stages... 4 stages! That's 4 bootloader stages that run before U-Boot runs and in turn boots Linux. Although, one of those stages (stage 3-2) is optional and not used on our board, but 4 sounded better for dramatic effect, give me a break Karen!
+
+The stages are as follows:
+
+* Bootloader stage 1 (BL1) AP Trusted ROM (loaded from flash in the SoC)
+* Bootloader stage 2 (BL2) Trusted Boot Firmware
+* Bootloader stage 3-1 (BL31) EL3 Runtime Software
+* Bootloader stage 3-2 (BL32) Secure-EL1 Payload (optional)
+* Bootloader stage 3-3 (BL33) Non-trusted Firmware (this is U-Boot)
 
 If you're interested you can read more about it [here][2], in a lot of detail!
 
@@ -72,7 +80,7 @@ I'm also a generous guy and I have pre-compiled it for anyone that trusts me, [h
 
 ### Wiping the eMMC
 
-To wipe the eMMC we're gonna need the [aml-flash][9] tool! This tool is meant for burning the Android image to it but it does have a handy `--destroy` flag that wipes the bootloader from eMMC. The reason we want this is that the soc looks for the bootloader on eMMC before it looks at the sd card, so we need it gone! You will be able to go back to Android if you obtain an image from [here][10] and use this tool to flash it.
+To wipe the eMMC we're gonna need the [aml-flash][9] tool! This tool is meant for burning the Android image to it but it does have a handy `--destroy` flag that wipes the bootloader from eMMC. The reason we want this is that the SoC looks for the bootloader on eMMC before it looks at the sd card, so we need it gone! You will be able to go back to Android if you obtain an image from [here][10] and use this tool to flash it.
 
 All you have to do to wipe the eMMC is to go through the install instructions in the repo, find a USB Type-A to Type-A cable (stop looking, you don't have it, why would you?), plug it into the USB slot closer to the sd card on the board, the other into your computer and run:
 
@@ -137,7 +145,7 @@ label ArchLinuxARM
         fdtdir /boot/dtbs/
 ```
 
-> The paths are relative to the first partition. So if you have a separate boot partition that is then mounted under `/boot` in the root, make sure it's the first partition and drop the `/boot` prefix to all the paths in `extlinux.conf`. This boot partition will also need to be added manually to fstab inside the rootfs, if you like kernel updates.
+> The paths are relative to the first partition. So if you have a separate boot partition that is then mounted under `/boot` in the root, make sure it's the first partition and drop the `/boot` prefix from all the paths in `extlinux.conf`. This boot partition will also need to be added manually to fstab inside the rootfs, if you like kernel updates.
 
 After that fiasco is done you can pop that sd card into your board and watch as that glorious Arch Linux ARM boots. You can find more information such as default passwords and services in the Arch Linux ARM [docs][13].
 
