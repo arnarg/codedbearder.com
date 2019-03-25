@@ -28,7 +28,7 @@ There are images with LibreELEC and armbian out there on forums, but they requir
 
 # U-Boot
 
-This TV box ships with Android installed and has a rather old version of Linux and U-boot installed. Most TV boxes that share the same chipset are based on the same reference design and include an unsoldered serial header on the board, how handy!
+This TV box ships with Android installed and has a rather old version of Linux and U-boot. Most TV boxes that share the same chipset are based on the same reference design and include an unsoldered serial header on the board, how handy!
 
 {{% zoom-img src="/images/posts/mainline-linux-on-tx3-mini/tx3-mini-board.jpg" %}}
 
@@ -50,7 +50,7 @@ So, the U-Boot source code was missing any defconfig resembling tx3-mini, f%#@! 
 
 The P212 has Amlogic S905X chipset which is a little different from the TX3 Mini's S905W. Now, it's been a few months on and off (mostly off) that I've worked on this so I don't remember exactly what steps I took to figure out that TX3 Mini is referenced from P281, but I did!
 
-I simply made a copy of all the files for P212 and renamed them to P281, most importantly to make `CONFIG_DEFAULT_DEVICE_TREE` equal `meson-gxl-s905w-p281` as its [dtb][3] is upstream and will therefor ship with distros. No need to compile a dtb manually! I have a [fork of U-Boot][4] that includes this on branches called `<version>-tx3-mini`.
+I simply made a copy of all the files for P212 and renamed them to P281, most importantly to make `CONFIG_DEFAULT_DEVICE_TREE` equal `meson-gxl-s905w-p281` as its [dtb][3] is upstream and will therefor ship with distros. No need to compile a dtb manually! I have a [fork of U-Boot][4] that includes this on a branch called `v2019.01-tx3-mini`.
 
 With that done we can simply run:
 ```bash
@@ -131,10 +131,10 @@ menu title ArchLinuxARM Boot Options.
 timeout 20
 
 label ArchLinuxARM
-        kernel /zImage
-        initrd /initramfs-linux.img
+        kernel /boot/Image
+        initrd /boot/initramfs-linux.img
         append rw root=LABEL=linux-root rootwait rootfstype=ext4 coherent_pool=1M ethaddr=${ethaddr} serial=${serial#}
-        fdtdir /dtbs/
+        fdtdir /boot/dtbs/
 ```
 
 After that fiasco is done you can pop that sd card into your board and watch as that glorious Arch Linux ARM boots. You can find more information such as default passwords and services in the Arch Linux ARM [docs][13].
@@ -147,7 +147,7 @@ So, on properly supported hardware U-Boot can load the MAC address from NAND fla
 
 The reason this is a problem is that if U-Boot can't load the MAC address from hardware it will just say "fine!" and make up its own, on every single boot. If you don't reboot it very often or use a static IP address this might not be a problem but on every boot it will get a new DHCP lease. U-Boot no longer supports hardcoding it in the config, as MAC addresses are suppose to be globally unique, so lets work around that.
 
-We simply hardcode the MAC address in the `extlinux.conf` file created previously, look at the line where we pass parameters on to the Linux kernel (line starting with `append`). Variables enclosed in `${}` are loaded from the U-Boot environment, `${ethaddr}` being the MAC address of the first interface (followed by `${eth1addr}`, `${eth2addr}`, and so on...). So `ethaddr=${ethaddr}` becomes `ethaddr=12:34:56:78:9a:bc`, or you know, an actual MAC address (mine is printed on the bottom of the case).
+***We simply hardcode the MAC address in the `extlinux.conf` file created previously, look at the line where we pass parameters on to the Linux kernel (line starting with `append`). Variables enclosed in `${}` are loaded from the U-Boot environment, `${ethaddr}` being the MAC address of the first interface (followed by `${eth1addr}`, `${eth2addr}`, and so on...). So `ethaddr=${ethaddr}` becomes `ethaddr=12:34:56:78:9a:bc`, or you know, an actual MAC address (mine is printed on the bottom of the case).***
 
 ### Flashing it to the eMMC
 
