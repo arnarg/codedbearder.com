@@ -133,9 +133,11 @@ timeout 20
 label ArchLinuxARM
         kernel /boot/Image
         initrd /boot/initramfs-linux.img
-        append rw root=LABEL=linux-root rootwait rootfstype=ext4 coherent_pool=1M ethaddr=${ethaddr} serial=${serial#}
+        append rw root=LABEL=linux-root rootwait rootfstype=ext4 coherent_pool=1M ethaddr=${ethaddr}
         fdtdir /boot/dtbs/
 ```
+
+> The paths are relative to the first partition. So if you have a separate boot partition that is then mounted under `/boot` in the root, make sure it's the first partition and drop the `/boot` prefix to all the paths in `extlinux.conf`. This boot partition will also need to be added manually to fstab inside the rootfs, if you like kernel updates.
 
 After that fiasco is done you can pop that sd card into your board and watch as that glorious Arch Linux ARM boots. You can find more information such as default passwords and services in the Arch Linux ARM [docs][13].
 
