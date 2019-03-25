@@ -170,6 +170,8 @@ If you don't care about the process it took me to get here and want step by step
 5. Get ArchLinuxARM-tx3-mini.img onto your sd card or scp it to your running TX3 Mini
 6. Burn the image onto the eMMC from the running sd card setup (`dd if=ArchLinuxARM-tx3-mini.img of=/dev/mmcblkX bs=1M`)
 
+> The generated image is 2GiB. After flashing it to the eMMC the partition needs to be enlarged manually. You can google that, I'm not your mom.
+
 # Final words
 
 That concludes our journey through thick and thin of getting mainline Linux running on the TX3 Mini. I haven't played at all with getting WIFI working, it has an `SSV6051` chip which does not have a driver in mainline Linux and a quick google search doesn't  give me much. Another thing is that the board has a 7-segment display where it can show the time or whatever you want (as long as it's not more than 4 numbers) and some icons, image search "TX3 Mini" and you'll see what I mean. This is controlled by an FD628 controller which does give me some results when googling for a driver ([linux_openvfd][16]) but I have not tried that one either. Finally, the HDMI should work, though I haven't tried it. There is a [driver for the GPU][17] in Arch Linux ARM's repo.
