@@ -84,7 +84,11 @@ To wipe the eMMC we're gonna need the [aml-flash][9] tool! This tool is meant fo
 
 All you have to do to wipe the eMMC is to go through the install instructions in the repo, find a USB Type-A to Type-A cable (stop looking, you don't have it, why would you?), plug it into the USB slot closer to the sd card on the board, the other into your computer and run:
 
-`aml-flash --destroy`
+```
+cd /path/to/aml-flash-repository
+export PATH=$PWD/tools:$PATH
+./aml-flash --destroy
+```
 
 I made my cable by soldering a USB Type-B PCB socket I had laying around to a cut USB cable. Then I could simply use a USB Type-A to USB Type-B cable to connect to it.
 
