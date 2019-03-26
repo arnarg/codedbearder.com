@@ -72,7 +72,7 @@ make ARCH=arm CROSS_COMPILE=aarch64-linux-gnu-
 
 Remember when I talked about those bootloader stages? Well those are not bundled with U-Boot. [ARM Trusted Firmware][5] has reference implementations for some platforms, but not our board.
 
-Looking at the [README][6] for P212 you can see it has step by step guide for creating a complete bootloader image including all the stages, great! The repo linked to in that guide doesn't include any P281 config though, again! I did however find [this][7] one that did!
+Looking at the [README][6] for P212 you can see it has a step by step guide for creating a complete bootloader image including all the stages, great! The repo linked to in that guide doesn't include any P281 config though, again! I did however find [this][7] one that did!
 
 The toolchain suggested is from 2013 and I couldn't get it to work on Arch Linux and the one I used to build U-Boot earlier is too recent for this code. I ended up building it in a CentOS 7 VM as that has an ancient kernel.
 
@@ -104,7 +104,7 @@ dd if=fip/u-boot.bin.sd.bin of=$DEV conv=fsync,notrunc bs=512 skip=1 seek=1
 dd if=fip/u-boot.bin.sd.bin of=$DEV conv=fsync,notrunc bs=1 count=444
 ```
 
-Now pop that sd card into your board, plug in the serial port (baud rate 115200) and look at that thing boot U-Boot! Wait, we're only seeing 1 GiB of RAM (unless you just downloaded my pre-compiled fip thingy)!?
+Now pop that sd card into your board, plug in the serial port (baud rate 115200) and look at that thing boot U-Boot! Wait, we're only seeing 1 GiB of RAM!?
 
 After looking through the [uboot-amlogic][7] repo for a while I found a handy variable called [CONFIG_DDR_SIZE][12]. Its value is in MiB and is currently set to `1024`, now this is promising! After changing it to `2048` and re-compiling, it boots and detects 2 GiB!
 
@@ -120,7 +120,7 @@ We do have to take one thing into consideration though when picking a distro, th
 
 ### Arch Linux ARM
 
-As a user of Arch Linux this was a really natural fit for me. Arch Linux is a rolling release distro and has very up to date packages (like Linux 5.0!) Arch Linux ARM is an ARM version of it but it is not maintained by the same team as the original Arch Linux.
+As a user of Arch Linux this was a really natural fit for me. Arch Linux is a rolling release distro and has very up to date packages (like Linux 5.0!). Arch Linux ARM is an ARM version of it but it is not maintained by the same people as the original Arch Linux.
 
 Preparing an sd card is fairly straight forward:
 
@@ -162,7 +162,7 @@ Ok so, here's how the the process works after you've booted into U-Boot.
 3. It looks for `/efi/boot/bootaa64.efi` binary
 4. It tries to DHCP/PXE boot
 
-This repeats for every bootable medium (sd card, eMMC and then USB). If it finds one it tries to boot it and if it fails it moves to the next one.
+Each step is run on every bootable medium (sd card, eMMC and then USB). If it finds one it tries to boot it and if it fails it moves to the next one.
 
 U-Boot has an environment of variables that are generated on compile time or populated on boot time, like `ethaddr` when possible. `ethaddr` is the MAC address of the first ethernet interface (followed by `eth1addr`, `eth2addr` and so on) but in our case this variable doesn't exist. The `boot.scr` script can manipulate the environment but as we can see the `extlinux.conf` step runs first, gosh darnit!.
 
@@ -193,7 +193,11 @@ If you don't care about the process it took me to get here and want step by step
 
 # Final words
 
-That concludes our journey through thick and thin of getting mainline Linux running on the TX3 Mini. I haven't played at all with getting WIFI working, it has an `SSV6051` chip which does not have a driver in mainline Linux and a quick google search doesn't  give me much. Another thing is that the board has a 7-segment display where it can show the time or whatever you want (as long as it's not more than 4 numbers) and some icons, image search "TX3 Mini" and you'll see what I mean. This is controlled by an FD628 controller which does give me some results when googling for a driver ([linux_openvfd][17]) but I have not tried that one either. Finally, the HDMI should work, though I haven't tried it. There is a [driver for the GPU][18] in Arch Linux ARM's repo.
+That concludes our journey through thick and thin of getting mainline Linux running on the TX3 Mini. I haven't played at all with getting WIFI working, it has an `SSV6051` chip which does not have a driver in mainline Linux and a quick google search doesn't  give me much.
+
+Another thing is that the board has a 7-segment display where it can show the time or whatever you want (as long as it's not more than 4 numbers) and some icons, image search "TX3 Mini" and you'll see what I mean. This is controlled by an FD628 controller which does give me some results when googling for a driver ([linux_openvfd][17]) but I have not tried that one either.
+
+Finally, the HDMI does work, though I haven't tried it for anything more than displaying a console. There is a [driver for the GPU][18] in Arch Linux ARM's repo.
 
 Now I can proudly plug my new ARM SBC into my network and use it as a server (or something). Lets throw it in the closet where no one can see it, making my point about aesthetics moot. But hey! It was fun figuring this out.
 
@@ -204,8 +208,8 @@ Now I can proudly plug my new ARM SBC into my network and use it as a server (or
 [5]: https://github.com/ARM-software/arm-trusted-firmware
 [6]: https://github.com/u-boot/u-boot/blob/master/board/amlogic/p212/README.p212
 [7]: https://github.com/Stane1983/uboot-amlogic
-[8]: https://github.com/arnarg/tx3-mini-arch-linux-build/raw/master/files/gxl-p281-fip-1g.tar.gz
-[9]: https://github.com/arnarg/tx3-mini-arch-linux-build/raw/master/files/gxl-p281-fip-2g.tar.gz
+[8]: https://github.com/arnarg/tx3-mini-uboot-build/raw/master/files/gxl-p281-fip-1g.tar.gz
+[9]: https://github.com/arnarg/tx3-mini-uboot-build/raw/master/files/gxl-p281-fip-2g.tar.gz
 [10]: https://github.com/Stane1983/aml-linux-usb-burn
 [11]: http://www.tanix-box.com/download-view/tanix-tx3-mini-firmware-full-image-20170829/
 [12]: https://github.com/Stane1983/uboot-amlogic/blob/master/board/amlogic/configs/gxl_p281_v1.h#L259
