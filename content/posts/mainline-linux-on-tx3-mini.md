@@ -1,7 +1,14 @@
 ---
 title: "TX3 Mini: Mainline Linux on an Android TV Box"
-date: 2019-03-23T21:23:25Z
-draft: true
+date: 2019-03-26T10:00:00Z
+categories:
+- ARM
+- U-Boot
+- Linux
+tags:
+- arm
+- u-boot
+- linux
 ---
 
 I've always found Raspberry Pi cases and the Pi's connector locations to be rather aesthetically unpleasing, with the power connector coming out from the side and the ethernet from the back (or vice versa). Imagine my excitement when I was browsing the [github mirror of Linux][1] (as you do) and I ran into a dts for an Android TV box called Tanix TX3 Mini.
@@ -168,7 +175,7 @@ U-Boot has an environment of variables that are generated on compile time or pop
 
 This is not a new idea but wasn't implemented in the P212 config. I added a preboot step that tries to load additional environment variables from a file named `uEnv.txt` in either `/` or `/boot` in the first partition of the sd card and eMMC.
 
-So `echo "ethaddr=12:34:56:78:9a:bc" > uEnv.txt` should do the trick, but with an actual MAC address (mine is printed on the bottom of the case).
+So `echo "ethaddr=12:34:56:78:9a:bc" > uEnv.txt` should do the trick, but you know, with an actual MAC address (mine is printed on the bottom of the case).
 
 ### Flashing it to the eMMC
 
