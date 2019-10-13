@@ -17,6 +17,10 @@ I've always found Raspberry Pi cases and the Pi's connector locations to be rath
 
 {{% zoom-img src="/images/posts/mainline-linux-on-tx3-mini/tx3-mini-hero.jpg" %}}
 
+> **Update 2019/10/13**:
+>
+> After writing this post I bought some more of these boards and it seems there has been a new hardware revision. The bad news is that they changed the eMMC module for a NAND chip that they interface directly with. This is not supported without a custom kernel most of the time. The good news is that they seem to have changed the SSV6051 WIFI chip for a better known RTL8723BS which is in staging in Linux. This board no longer looks as attractive.
+
 It has the following specs:
 
 * Amlogic S905W chipset
