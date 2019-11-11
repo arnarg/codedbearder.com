@@ -1,6 +1,7 @@
 ---
 title: "TX3 Mini: Mainline Linux on an Android TV Box"
 date: 2019-03-26T10:00:00Z
+thumbnail: /images/posts/mainline-linux-on-tx3-mini/tx3-mini-hero.jpg
 categories:
 - ARM
 - U-Boot
