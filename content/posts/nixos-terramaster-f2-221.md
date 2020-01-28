@@ -29,7 +29,7 @@ It partitions your hard drives installed in the unit and raids them using mdadm,
 
 Now, I already have a couple of drives that are formatted with btrfs in raid1 configuration. That means that I would need to wipe them to install TOS on there and then migrate my files back on to them. The installation wizard does display a warning about this.
 
-For those reasons and that TOS is not that great for my requirements I decided to roll my own NAS OS (this was my plan before buying the unit). I do however realize that I'm probably not the average user that would buy this and TOS does look fairly user friendly.
+For those reasons and that TOS is not that great for my requirements I decided to install my own NAS OS (this was my plan before buying the unit). I do however realize that I'm probably not the average user that would buy this and TOS does look fairly user friendly.
 
 ## Improving the software
 
@@ -37,21 +37,22 @@ In my aformentioned NAS VM I'm running NixOS and it's been an absolute bliss. If
 
 For some reason the HDMI on the back of the Terramaster turns off after a few seconds after booting it (I can see the GRUB menu and the kernel boot log but then it turns off). This happened with any distro I tried so eventually I created a [custom NixOS live CD][3] that has a known root password and automatically starts an SSH server for me to connect to from another machine. From there I can do a [regular install of NixOS][4].
 
-> You will need to add the following to enable the SSH server:
->
+You will need to add the following in the config for your custom live CD to enable the SSH server:
 ```
 services.openssh.enabled = true;
 systemd.services.sshd.wantedBy = lib.mkOverride 40 [ "multi-user.target" ];
 ```
->
-> And you want to enable root login:
+
+And you want to enable root login:
 ```
 services.openssh.permitRootLogin = "yes";
 ```
 
 ### Why is my CPU overheating?
 
-When opening the case and unplugging the fan you may notice that the fan is connected to a header marked on the PCB as `SYS_FAN2`. Well, a fan connected to this header does not spin up when the CPU heats up. It's only a 10W CPU but it can get quite hot if under load for a while uncooled. Naturally I turned to `lm_sensors` (`nix-shell -p lm_sensors` will give a new shell where lm_sensors is installed and in path).
+When opening the case and unplugging the fan you may notice that the fan is connected to a header marked on the PCB as `SYS_FAN2`. Well, a fan connected to this header does not spin up when the CPU heats up. It's only a 10W CPU but it can get quite hot if under load for a while uncooled. Naturally I turned to `lm_sensors`.
+
+> `nix-shell -p lm_sensors` will give you a new shell where lm_sensors is installed and its executables in path. When you exit this shell none of lm_sensors' executables are in path and it will be removed completely from the system next time `nix-collect-garbage` is run
 
 Running `sensors-detect` revealed that the Super I/O chip on the system is `IT8613E` which the module [it87][5] thankfully does support. Modules `coretemp` and `it87` should be loaded and in NixOS that should be done by including the following in `/etc/nixos/configuration.nix` and running `nixos-rebuild switch`.
 
@@ -60,7 +61,7 @@ boot.extraModulePackages = with pkgs.linuxPackages; [ it87 ];
 boot.kernelModules = ["coretemp" "it87"];
 ```
 
-That gives us the ability to monitor CPU temperature and current fan speed. `lm_sensors` hower also includes a program called `fancontrol` which is a bash script that periodically checks the CPU temperature and sets the fan speed accordingly. You can run `pwmcontrol` to go through a wizard setting up the `fancontrol` config and writing it in `/etc/fancontrol`. Mine is below, however you have to load `coretemp` and `it87` before any other `hwmon` modules and in that order in order for it to work, so you might be better off running `pwmcontrol` yourself.
+That gives us the ability to monitor CPU temperature and current fan speed. `lm_sensors` however also includes a program called `fancontrol` which is a bash script that periodically checks the CPU temperature and sets the fan speed accordingly. You can run `pwmcontrol` to go through a wizard setting up the `fancontrol` config and writing it in `/etc/fancontrol`. Mine is below, however you have to load `coretemp` and `it87` before any other `hwmon` modules and in that order in order for it to work, so you might be better off running `pwmcontrol` yourself.
 
 ```
 INTERVAL=10
@@ -97,8 +98,26 @@ This will make `fancontrol` start on boot and will spin up the fan under load.
 
 ### Lets control those HDD LEDs
 
+All the Terramaster NAS have 2-5 LEDs (depending on how many drives it takes) that indicate if a drive is installed or not. Each of the HDD LEDs are bi-color (red and green). When you boot this NAS into another distro than TOS you will notice that you have no way of controlling the LEDs.
+
+In TOS you can install an SSH server, so after doing that and browsing the system a little bit I noticed that a kernel module called `led_drv_TMJ33` was loaded. Even though this was looking promising, after looking for this module online I came up empty. Finally I decided to email their support asking for the source, because kernel modules distributed with products [must be GPL][6]. After a few emails back and forth and to my surprise they agreed to send me the source code.
+
+This module was not all that well written. It creates char devices `/dev/leddrv[1-10]` that you can pipe into `"led[1-10]on"` and `"led[1-10]off"`. However they don't do any tracking on which char device the user is writing into, meaning `echo led2on > /dev/leddrv5` will actually turn on led2, so will `echo led2on > /dev/leddrv3`. I didn't like that interface so I wrote my own module with the original one as reference on how to interface with the hardware.
+
+My module creates char devices /dev/hddled[1-5]. Each device can only control a single LED. You can write [0-3] into them to control the LED in question. The source for my module can be found [here][7].
+
+The values do the following:
+```
+0 - OFF
+1 - GREEN
+2 - RED
+3 - BOTH (orange)
+```
+
 [1]: https://www.terra-master.com/global/products/homesoho-nas/f2-221.html
 [2]: https://nixos.org/nixos/about.html
 [3]: https://nixos.wiki/wiki/Creating_a_NixOS_live_CD
 [4]: https://nixos.org/nixos/manual/index.html#sec-installation
 [5]: https://github.com/hannesha/it87
+[6]: https://yarchive.net/comp/linux/gpl_modules.html
+[7]: TODO
