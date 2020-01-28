@@ -100,11 +100,11 @@ This will make `fancontrol` start on boot and will spin up the fan under load.
 
 All the Terramaster NAS have 2-5 LEDs (depending on how many drives it takes) that indicate if a drive is installed or not. Each of the HDD LEDs are bi-color (red and green). When you boot this NAS into another distro than TOS you will notice that you have no way of controlling the LEDs.
 
-In TOS you can install an SSH server, so after doing that and browsing the system a little bit I noticed that a kernel module called `led_drv_TMJ33` was loaded. Even though this was looking promising, after looking for this module online I came up empty. Finally I decided to email their support asking for the source, because kernel modules distributed with products [must be GPL][6]. After a few emails back and forth and to my surprise they agreed to send me the source code.
+In TOS you can install an SSH server, so after doing that and browsing the system a little bit I noticed that a kernel module called `led_drv_TMJ33` was loaded. Even though this was looking promising, after looking for this module online I came up empty. Finally I decided to email their support asking for the source, because kernel modules distributed with products [must be GPL compliant][6]. After a few emails back and forth they agreed to send me the source code.
 
-This module was not all that well written. It creates char devices `/dev/leddrv[1-10]` that you can pipe into `"led[1-10]on"` and `"led[1-10]off"`. However they don't do any tracking on which char device the user is writing into, meaning `echo led2on > /dev/leddrv5` will actually turn on led2, so will `echo led2on > /dev/leddrv3`. I didn't like that interface so I wrote my own module with the original one as reference on how to interface with the hardware.
+This module was not all that well written. It creates char devices `/dev/leddrv[1-10]` that you can write into `"led[1-10]on"` and `"led[1-10]off"`. However they don't do any tracking on which char device the user is writing into, meaning `echo led2on > /dev/leddrv5` will actually turn on led2, so will `echo led2on > /dev/leddrv3`. I didn't like that interface so I wrote my own module with the original one as reference on how to interface with the hardware.
 
-My module creates char devices /dev/hddled[1-5]. Each device can only control a single LED. You can write [0-3] into them to control the LED in question. The source for my module can be found [here][7].
+My module creates char devices /dev/hddled[1-5]. Each device can only control a single LED. You can write [0-3] into them to control the LED in question. The source for my module can be found [here][7]. There is a Makefile and dkms config in the repository so it should be able to be used in any distro, not just NixOS.
 
 The values do the following:
 ```
@@ -114,10 +114,86 @@ The values do the following:
 3 - BOTH (orange)
 ```
 
+So, running `echo 1 > /dev/hddled2` will turn LED 1 green. The module does not handle any detection of drives installed. This will have to be handled by a user space program that will write in appropriate hddled char devices.
+
+#### Packaging for NixOS
+
+I'm not gonna go too deep into packaging for Nix but I will show a working derivation below. I recommend reading [Nix pills][8] if you're interested in learning Nix.
+
+```
+{ stdenv, fetchFromGitHub, kernel }:
+
+stdenv.mkDerivation rec {
+  name = "hddled_tmj33-${version}-${kernel.version}";
+  version = "0.1";
+
+  src = fetchFromGitHub {
+    owner = "arnarg";
+    repo = "hddled_tmj33";
+    rev = version;
+    sha256 = "0izz2xxg47rsj88pfqrx035n8hz78bqna41vljwc29r8aid9rnk9";
+  };
+
+  nativeBuildInputs = kernel.moduleBuildDependencies;
+
+  # We don't want to depmod yet, just build and package the module
+  preConfigure = ''
+    sed -i 's|depmod|#depmod|' Makefile
+  '';
+
+  makeFlags = [
+    "TARGET=${kernel.modDirVersion}"
+    "KERNEL_MODULES=${kernel.dev}/lib/modules/${kernel.modDirVersion}"
+    "MODDESTDIR=$(out)/lib/modules/${kernel.modDirVersion}/kernel/drivers/misc"
+  ];
+
+  meta = with stdenv.lib; {
+    description = "A linux module for controlling the HDD LEDs on Terramaster NAS devices with Intel J33xx CPU";
+    homepage = https://github.com/arnarg/hddled_tmj33;
+    license = licenses.gpl2;
+    platforms = [ "x86_64-linux" ];
+  };
+}
+```
+
+This derivation then needs to be appended to the list of extra module packages.
+
+```
+{ pkgs, ... }:
+let
+  hddled_tmj33 = import ./hddled_tmj33.nix { inherit; };
+in {
+  ...
+  boot.extraModulePackages = with pkgs.linuxPackages; [ it87 hddled_tmj33 ];
+  boot.kernelModules = ["coretemp" "it87" "hddled_tmj33"];
+  ...
+}
+```
+
+### Plex Media Server
+
+To install Plex Media Server you must include the following in your `/etc/nixos/configuration.nix`.
+
+```
+# Plex has an unfree license
+nixpkgs.config.allowUnfree = true;
+
+# For hardware transcoding
+environment.systemPackages = [ pkgs.libva ];
+
+services.plex.enable = true;
+# If you have enabled the firewall
+# It will open TCP port 32400 in your firewall
+service.ples.openFirewall = true;
+```
+
+After getting a Plex Pass subscription and turning on hardware transcoding for this server I can transcode videos with very low CPU utilization.
+
 [1]: https://www.terra-master.com/global/products/homesoho-nas/f2-221.html
 [2]: https://nixos.org/nixos/about.html
 [3]: https://nixos.wiki/wiki/Creating_a_NixOS_live_CD
 [4]: https://nixos.org/nixos/manual/index.html#sec-installation
 [5]: https://github.com/hannesha/it87
 [6]: https://yarchive.net/comp/linux/gpl_modules.html
-[7]: TODO
+[7]: https://github.com/arnarg/hddled_tmj33
+[8]: https://nixos.org/nixos/nix-pills/why-you-should-give-it-a-try.html
