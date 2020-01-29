@@ -161,7 +161,7 @@ This derivation then needs to be appended to the list of extra module packages.
 ```
 { pkgs, ... }:
 let
-  hddled_tmj33 = import ./hddled_tmj33.nix { inherit; };
+  hddled_tmj33 = pkgs.lib.callPackage ./hddled_tmj33.nix { };
 in {
   ...
   boot.extraModulePackages = with pkgs.linuxPackages; [ it87 hddled_tmj33 ];
@@ -183,11 +183,17 @@ environment.systemPackages = [ pkgs.libva ];
 
 services.plex.enable = true;
 # If you have enabled the firewall
-# It will open TCP port 32400 in your firewall
+# It will open necessary ports in your firewall
 service.ples.openFirewall = true;
 ```
 
 After getting a Plex Pass subscription and turning on hardware transcoding for this server I can transcode videos with very low CPU utilization.
+
+## Conclusion
+
+I've really enjoyed having this setup. After setting it up initially I've barely had to touch it and I can run automatic updates and trust that they won't mess up the system completely (I can always rollback the whole system). Since this experiment went so well I've also started using NixOS on my workstation and [nix-darwin][9] on my work macbook.
+
+You can find my full NixOS configuration for my NAS [here][10].
 
 [1]: https://www.terra-master.com/global/products/homesoho-nas/f2-221.html
 [2]: https://nixos.org/nixos/about.html
@@ -197,3 +203,5 @@ After getting a Plex Pass subscription and turning on hardware transcoding for t
 [6]: https://yarchive.net/comp/linux/gpl_modules.html
 [7]: https://github.com/arnarg/hddled_tmj33
 [8]: https://nixos.org/nixos/nix-pills/why-you-should-give-it-a-try.html
+[9]: https://github.com/LnL7/nix-darwin
+[10]: TODO
