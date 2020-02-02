@@ -1,8 +1,7 @@
 ---
-title: "Running NixOS on a Terramaster NAS"
-date: 2019-11-10T23:29:37Z
+title: "Running NixOS on a consumer NAS"
+date: 2020-02-02T18:00:00Z
 thumbnail: /images/posts/nixos-terramaster-f2-221/f2-221-hero.jpg
-draft: true
 categories:
 - Linux
 tags:
@@ -14,7 +13,7 @@ tags:
 
 I have an old whitebox server sporting a Xeon E5 (v1) that I'd like to get rid of. It's running a handful of VMs on Proxmox. Most of them I can get rid of by moving their services to Kubernetes, but I wasn't sure what I wanted to do with my NAS VM and Plex server. The latter you can easily run in Kubernetes but I'm not planning on having particularly powerful nodes and I need transcoding.
 
-When I was looking at potential consumer NAS boxes I noticed in a teardown of [Terramaster F2-221][1] that there's just an internal USB header running the OS which gave me hope of running any OS that I want on it (that and that it has a standard x86_64 Intel CPU). This may very well be the case with other NASes from other manufacturers but I'm not too familiar with it.
+When I was looking at potential consumer NAS boxes I noticed in a teardown of [Terramaster F2-221][1] that there's an internal USB header with a USB stick running the OS which gave me hope of running any OS that I want on it (that and that it has a standard x86_64 Intel CPU). This may very well be the case with other NASes from other manufacturers but I'm not too familiar with it.
 
 ### The Hardware
 
@@ -53,7 +52,7 @@ services.openssh.permitRootLogin = "yes";
 
 When opening the case and unplugging the fan you may notice that the fan is connected to a header marked on the PCB as `SYS_FAN2`. Well, a fan connected to this header does not spin up when the CPU heats up. It's only a 10W CPU but it can get quite hot if under load for a while uncooled. Naturally I turned to `lm_sensors`.
 
-> `nix-shell -p lm_sensors` will give you a new shell where lm_sensors is installed and its executables in path. When you exit this shell none of lm_sensors' executables are in path and it will be removed completely from the system next time `nix-collect-garbage` is run
+> `nix-shell -p lm_sensors` will give you a new shell where lm_sensors is installed and its executables in path. When you exit this shell none of lm_sensors' executables are in path and it will be removed completely from the system next time `nix-collect-garbage` is run.
 
 Running `sensors-detect` revealed that the Super I/O chip on the system is `IT8613E` which the module [it87][5] thankfully does support. Modules `coretemp` and `it87` should be loaded and in NixOS that should be done by including the following in `/etc/nixos/configuration.nix` and running `nixos-rebuild switch`.
 
@@ -101,7 +100,7 @@ This will make `fancontrol` start on boot and will spin up the fan under load.
 
 All the Terramaster NAS have 2-5 LEDs (depending on how many drives it takes) that indicate if a drive is installed or not. Each of the HDD LEDs are bi-color (red and green). When you boot this NAS into another distro than TOS you will notice that you have no way of controlling the LEDs.
 
-In TOS you can install an SSH server, so after doing that and browsing the system a little bit I noticed that a kernel module called `led_drv_TMJ33` was loaded. Even though this was looking promising, after looking for this module online I came up empty. Finally I decided to email their support asking for the source, because kernel modules distributed with products [must be GPL compliant][6]. After a few emails back and forth they agreed to send me the source code.
+In TOS you can install an SSH server, so after doing that and browsing the system a little bit I noticed that a kernel module called `led_drv_TMJ33` was loaded. Even though this was looking promising, after looking for this module online I came up empty. Finally I decided to email their support asking for the source, because as far as I understand kernel modules distributed with products [must be GPL compliant][6]. After a few emails back and forth they agreed to send me the source code.
 
 This module was not all that well written. It creates char devices `/dev/leddrv[1-10]` that you can write into `"led[1-10]on"` and `"led[1-10]off"`. However they don't do any tracking on which char device the user is writing into, meaning `echo led2on > /dev/leddrv5` will actually turn on led2, so will `echo led2on > /dev/leddrv3`. I didn't like that interface so I wrote my own module with the original one as reference on how to interface with the hardware.
 
@@ -188,13 +187,15 @@ services.plex.enable = true;
 service.ples.openFirewall = true;
 ```
 
-After getting a Plex Pass subscription and turning on hardware transcoding for this server I can transcode videos with very low CPU utilization.
+After getting a Plex Pass subscription and turning on hardware transcoding for this server I can transcode videos with fairly low CPU utilization.
 
 ## Conclusion
 
 I've really enjoyed having this setup. After setting it up initially I've barely had to touch it and I can run automatic updates and trust that they won't mess up the system completely (I can always rollback the whole system). Since this experiment went so well I've also started using NixOS on my workstation and [nix-darwin][9] on my work macbook.
 
-You can find my full NixOS configuration for my NAS [here][10].
+My only regret is not buying a bigger one, like the [F4-221][10]. Looking at the thick border on the right side of the drive bays suggests to me that this unit might be identical to the 5-bay one except with one drive bay blocked off, which would be a perfect place for an SSD to boot from. Some pictures in a [review][11] seem to back that up as there is a SATA connector behind there, it may be disabled though. But as I'm using both of my drive bays for HDDs I'm booting the OS off an external drive.
+
+You can find my full NixOS configuration for my NAS [here][12].
 
 [1]: https://www.terra-master.com/global/products/homesoho-nas/f2-221.html
 [2]: https://nixos.org/nixos/about.html
@@ -205,4 +206,6 @@ You can find my full NixOS configuration for my NAS [here][10].
 [7]: https://github.com/arnarg/hddled_tmj33
 [8]: https://nixos.org/nixos/nix-pills/why-you-should-give-it-a-try.html
 [9]: https://github.com/LnL7/nix-darwin
-[10]: TODO
+[10]: https://www.terra-master.com/global/products/homesoho-nas/f4-221.html
+[11]: https://nascompares.com/terramaster-f4-220-nas-review/
+[12]: https://github.com/arnarg/config/blob/master/machines/terramaster/configuration.nix
