@@ -1,6 +1,7 @@
 ---
 title: "Running NixOS on a Terramaster NAS"
 date: 2019-11-10T23:29:37Z
+thumbnail: /images/posts/nixos-terramaster-f2-221/f2-221-hero.jpg
 draft: true
 categories:
 - Linux
