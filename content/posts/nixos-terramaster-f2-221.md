@@ -159,9 +159,9 @@ stdenv.mkDerivation rec {
 This derivation then needs to be appended to the list of extra module packages.
 
 ```
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 let
-  hddled_tmj33 = pkgs.lib.callPackage ./hddled_tmj33.nix { };
+  hddled_tmj33 = lib.callPackage ./hddled_tmj33.nix { kernel = pkgs.linuxPackages.kernel; };
 in {
   ...
   boot.extraModulePackages = with pkgs.linuxPackages; [ it87 hddled_tmj33 ];
