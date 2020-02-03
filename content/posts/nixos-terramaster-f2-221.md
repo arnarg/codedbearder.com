@@ -197,6 +197,8 @@ My only regret is not buying a bigger one, like the [F4-221][10]. Looking at the
 
 You can find my full NixOS configuration for my NAS [here][12].
 
+**Discuss on [Hacker News][13] or [Reddit][14]**
+
 [1]: https://www.terra-master.com/global/products/homesoho-nas/f2-221.html
 [2]: https://nixos.org/nixos/about.html
 [3]: https://nixos.wiki/wiki/Creating_a_NixOS_live_CD
@@ -209,3 +211,5 @@ You can find my full NixOS configuration for my NAS [here][12].
 [10]: https://www.terra-master.com/global/products/homesoho-nas/f4-221.html
 [11]: https://nascompares.com/terramaster-f4-220-nas-review/
 [12]: https://github.com/arnarg/config/blob/master/machines/terramaster/configuration.nix
+[13]: https://news.ycombinator.com/item?id=22222988
+[14]: https://www.reddit.com/r/linux/comments/ey5a5t/running_nixos_on_a_consumer_nas/
