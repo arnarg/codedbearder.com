@@ -114,7 +114,7 @@ The values do the following:
 3 - BOTH (orange)
 ```
 
-So, running `echo 1 > /dev/hddled2` will turn LED 1 green. The module does not handle any detection of drives installed. This will have to be handled by a user space program that will write in appropriate hddled char devices.
+So, running `echo 1 > /dev/hddled2` will turn LED 2 green. The module does not handle any detection of drives installed. This will have to be handled by a user space program that will write in appropriate hddled char devices.
 
 #### Packaging for NixOS
 
