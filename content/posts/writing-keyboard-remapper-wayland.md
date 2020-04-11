@@ -82,6 +82,7 @@ All available key codes can be found [here][3].
 But feel free to inspect the [code][4].
 
 Here's how I run it:
+
 - Create group `uinput`.
 - Create user `waybind` and add it as a member of `uinput` and `input`.
 - Add a [udev rule][5] to make `uinput` group be able to read and write to uinput.
