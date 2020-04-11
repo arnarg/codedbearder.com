@@ -21,11 +21,12 @@ However, with the design on Wayland it was decided that for security's sake only
 
 ### Let's move up the chain
 
-It is however possible to take the Display server/Compositor out of the equation entirely. If you inspect the directory `/dev/input` you will find a bunch of files called `eventX` (X being some number). These are your input devices and they can be read to get all events from them. Traditionally, distros make these files owned by the input group, so if your user is a part of that group you can read a write to those devices. You can even claim a device so that you get exclusive access to it, that is to say only you will get the events and unless you do something with those events the keyboard will appear to not work until it is released again.
+It is however possible to take the Display server/Compositor out of the equation entirely. If you inspect the directory `/dev/input` you will find a bunch of files called `eventX` (X being some number). These are your input devices and they can be read to get all events from them. Traditionally, distros make these files owned by the input group, so if your user is a part of that group you can read and write to those devices. You can even claim a device so that you get exclusive access to it, that is to say only you will get the events and unless you do something with those events the keyboard will appear to not work until it is released again.
 
 So that's reading from the keyboard taken care of, what about sending those events back into the system? That's where uinput comes in.
 
 The kernel documentation writes:
+
 > uinput is a kernel module that makes it possible to emulate input devices from userspace. By writing to /dev/uinput (or /dev/input/uinput) device, a process can create a virtual input device with specific capabilities. Once this virtual device is created, the process can send events through it, that will be delivered to userspace and in-kernel consumers.
 
 To simplify, it is used to create virtual input devices that you can programmatically send events to so that it seems to the system that a real input device is being used. The module `uinput` has to be loaded and a udev rule can be written so that it can be used by a user (by default the file is owned by root with permissions `600`).
