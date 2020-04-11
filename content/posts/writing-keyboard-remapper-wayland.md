@@ -91,6 +91,8 @@ I have packaged waybind for Nix in my local repository [here][7] and made a modu
 
 I hope this is useful to someone else.
 
+**Discuss on [Hacker News][9] or [Reddit][10]**
+
 [1]: https://github.com/snyball/Hawck
 [2]: https://beta.docs.qmk.fm/using-qmk/advanced-keycodes/feature_grave_esc
 [3]: https://github.com/arnarg/waybind/blob/master/src/ecodes.go
@@ -99,3 +101,5 @@ I hope this is useful to someone else.
 [6]: https://www.freedesktop.org/software/systemd/man/systemd.exec.html#PrivateNetwork=
 [7]: https://github.com/arnarg/config/blob/master/packages/waybind/default.nix
 [8]: https://github.com/arnarg/config/blob/master/modules/programs/waybind/default.nix
+[9]: https://news.ycombinator.com/item?id=22843070
+[10]: https://www.reddit.com/r/linux/comments/fzc1bg/waybind_dead_simple_remapper_for_wayland_based_on/
