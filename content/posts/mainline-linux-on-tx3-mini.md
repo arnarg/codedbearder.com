@@ -212,7 +212,7 @@ Finally, the HDMI does work, though I haven't tried it for anything more than di
 Now I can proudly plug my new ARM SBC into my network and use it as a server (or something). Lets throw it in the closet where no one can see it, making my point about aesthetics moot. But hey! It was fun figuring this out.
 
 [1]: https://github.com/torvalds/linux
-[2]: https://github.com/ARM-software/arm-trusted-firmware/blob/master/docs/firmware-design.rst
+[2]: https://github.com/ARM-software/arm-trusted-firmware/blob/master/docs/design/firmware-design.rst
 [3]: https://github.com/torvalds/linux/blob/master/arch/arm64/boot/dts/amlogic/meson-gxl-s905w-p281.dts
 [4]: https://github.com/arnarg/u-boot/tree/v2019.01-tx3-mini
 [5]: https://github.com/ARM-software/arm-trusted-firmware
